@@ -1,0 +1,14 @@
+{
+    "idaasInstanceId": "",
+    "clientId": "",
+    "issuer":"",
+    "tokenEndpoint": "",
+    "scope": "",
+    "openApiEndpoint":"",
+    "developerApiEndpoint":"",
+    "authnConfiguration": {
+        "authenticationSubject": "CLIENT",
+        "authnMethod": "PLUGIN",
+        "pluginName": "alibabacloudPluginCredentialProvider"
+    }
+}
