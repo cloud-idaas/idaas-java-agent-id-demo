@@ -10,12 +10,13 @@
     </parent>
 
     <groupId>com.alibaba.idaas</groupId>
-    <artifactId>agentscope-sample</artifactId>
+    <artifactId>idaas-java-agent-id-demo</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>agentscope-sample</name>
-    <url>http://maven.apache.org</url>
+    <name>idaas-java-agent-id-demo</name>
+    <description>Alibaba Cloud IDaaS Agent ID Demo</description>
+    <url>https://github.com/cloud-idaas/idaas-java-agent-id-demo</url>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
