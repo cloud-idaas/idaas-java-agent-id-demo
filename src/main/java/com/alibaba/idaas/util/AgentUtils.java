@@ -42,15 +42,15 @@ public class AgentUtils {
                 .build();
 
         Toolkit toolkit = new Toolkit();
-        String mcpServerApiKeyIdentifier = System.getenv("MCP_SERVER_API_KEY_IDENTIFIER");
+        String mcpServerApiKeyIdentifier = System.getenv("THIRD_PARTY_SERVER_API_KEY_IDENTIFIER");
         if (mcpServerApiKeyIdentifier == null){
-            throw new ConfigException("MCP_SERVER_API_KEY_IDENTIFIER should be specified via an environment variable.");
+            throw new ConfigException("THIRD_PARTY_SERVER_API_KEY_IDENTIFIER should be specified via an environment variable.");
         }
         String mcpServerApiKey = client.getApiKey(mcpServerApiKeyIdentifier);
 
-        String mcpServerUrl = System.getenv("MCP_SERVER_URL");
+        String mcpServerUrl = System.getenv("THIRD_PARTY_SERVER_URL");
         if (mcpServerUrl == null){
-            throw new ConfigException("MAP_MCP_SERVER_URL should be specified via an environment variable.");
+            throw new ConfigException("THIRD_PARTY_SERVER_URL should be specified via an environment variable.");
         }
         McpClientWrapper mapClient = McpClientBuilder.create("Amap-Maps")
                 .sseTransport(mcpServerUrl)
@@ -61,9 +61,9 @@ public class AgentUtils {
 
         toolkit.registerMcpClient(mapClient).block();
 
-        String mcpScope = System.getenv("MCP_SCOPE");
+        String mcpScope = System.getenv("ENTERPRISE_SERVICE_SCOPE");
         if (mcpScope == null){
-            throw new ConfigException("MCP_SCOPE should be specified via an environment variable.");
+            throw new ConfigException("ENTERPRISE_SERVICE_SCOPE should be specified via an environment variable.");
         }
         IDaaSCredentialProvider credentialProvider = IDaaSCredentialProviderFactory.getIDaaSCredentialProvider(mcpScope);
         String AT_mcp = credentialProvider.getBearerToken();

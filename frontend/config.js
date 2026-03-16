@@ -1,5 +1,5 @@
 window.APP_CONFIG = {
-    AGENTSCOPE_API_URL: '',
+    API_URL: '',
     IDAAS_AUTHORIZE_ENDPOINT: '',
     CLIENT_ID: '',
     SCOPE: ''

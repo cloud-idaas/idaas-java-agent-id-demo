@@ -16,9 +16,9 @@ public class FcSampleTool {
     public String fcSample(@ToolParam(name = "AccessToken", description = "访问企业服务的Access Token。") String accessToken) {
         Map<String, List<String>> headers = new HashMap();
         headers.put("Authorization", Collections.singletonList("Bearer " + accessToken));
-        String fcUrl = System.getenv("FUNCTION_CALL_URL");
+        String fcUrl = System.getenv("ENTERPRISE_SERVICE_URL");
         if (fcUrl == null) {
-            throw new ConfigException("FUNCTION_CALL_URL should be specified via an environment variable.");
+            throw new ConfigException("ENTERPRISE_SERVICE_URL should be specified via an environment variable.");
         }
         HttpRequest request = new HttpRequest.Builder()
                 .httpMethod(HttpMethod.POST)
