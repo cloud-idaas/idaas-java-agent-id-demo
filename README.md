@@ -374,19 +374,19 @@ export ENTERPRISE_SERVICE_SCOPE="https://mcpserver.com|mcp.access"
 export EXTERNAL_SERVER_URL=https://dashscope.aliyuncs.com/api/v1/mcps/amap-maps/mcp
 export ENTERPRISE_SERVICE_URL=https://xxx.fcapp.run
 ```
-| Environment Variable | Description | How to Obtain                                                                                                                                                                                                                                                                                                               |
-| --- | --- |-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| IDAAS\_CLIENT\_SECRET | Agent's Client Secret (required for Client Secret authentication) | 1. Go to the IDaaS instance page, click **Agent ID Gard** in the left navigation pane, and select the Agent.<br>    2. In the canvas, click **Agent > General**, and copy the Client Secret credential from **Authentication Management**.                                                                                  |
-| ENV\_PRIVATE\_KEY | Agent's private key (required for public/private key authentication; corresponds to the uploaded public key's private key) | Keep it when creating the public/private key credential.                                                                                                                                                                                                                                                                    |
-| JWKS\_ENDPOINT | IDaaS JWKS endpoint for verifying AT\_u signature | 1. Go to the IDaaS instance page, click **Application Management > M2M Application** in the left navigation pane, and select the client application.<br>    2. Copy the JWKS endpoint from **General > Application Settings**.                                                                                              |
-| AGENT\_AUDIENCE | Agent's audience identifier for verifying the `aud` field of AT\_u | 1. Go to the IDaaS instance page, click **Agent ID Gard** in the left navigation pane, and select the Agent.<br>    2. In the canvas, click **Agent > General**, and copy from **ResourceServer Identifier**.                                                                                                               |
-| AGENT\_SCOPE | Agent's permission identifier for verifying the `scope` field of AT\_u | 1. Go to the IDaaS instance page, click **Agent ID Gard** in the left navigation pane, and select the Agent.<br>    2. In the canvas, click **Agent > Permission Configuration**, and copy the permission identifier.                                                                                                       |
-| ACCESS\_IDENTITY | Agent identity mode: `Machine` or `Human` | Configure based on business requirements.                                                                                                                                                                                                                                                                                   |
-| LLM\_API\_KEY\_IDENTIFIER | API Key ID for the Large Language Model node. | 1. Go to the IDaaS instance page, click **Agent ID Gard** in the left navigation pane, and select the Agent.<br>    2. In the canvas, click **Large Language Model > Basic Information** and copy the API Key ID.                                                                                                                    |
-| EXTERNAL\_SERVER\_API\_KEY\_IDENTIFIER | API Key ID for the external service node. | 1. Go to the IDaaS instance page, click **Agent ID Gard** in the left navigation pane, and select the Agent.<br>    2. In the canvas, click **External Service > Basic Information** and copy the API Key ID.                                                                                                       |
+| Environment Variable | Description | How to Obtain                                                                                                                                                                                                                                                                                                              |
+| --- | --- |----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| IDAAS\_CLIENT\_SECRET | Agent's Client Secret (required for Client Secret authentication) | 1. Go to the IDaaS instance page, click **Agent ID Gard** in the left navigation pane, and select the Agent.<br>    2. In the canvas, click **Agent > General**, and copy the Client Secret credential from **Authentication Management**.                                                                                 |
+| ENV\_PRIVATE\_KEY | Agent's private key (required for public/private key authentication; corresponds to the uploaded public key's private key) | Keep it when creating the public/private key credential.                                                                                                                                                                                                                                                                   |
+| JWKS\_ENDPOINT | IDaaS JWKS endpoint for verifying AT\_u signature | 1. Go to the IDaaS instance page, click **Application Management > M2M Application** in the left navigation pane, and select the client application.<br>    2. Copy the JWKS endpoint from **General > Application Settings**.                                                                                             |
+| AGENT\_AUDIENCE | Agent's audience identifier for verifying the `aud` field of AT\_u | 1. Go to the IDaaS instance page, click **Agent ID Gard** in the left navigation pane, and select the Agent.<br>    2. In the canvas, click **Agent > General**, and copy from **ResourceServer Identifier**.                                                                                                              |
+| AGENT\_SCOPE | Agent's permission identifier for verifying the `scope` field of AT\_u | 1. Go to the IDaaS instance page, click **Agent ID Gard** in the left navigation pane, and select the Agent.<br>    2. In the canvas, click **Agent > Permission Configuration**, and copy the permission identifier.                                                                                                      |
+| ACCESS\_IDENTITY | Agent identity mode: `Machine` or `Human` | Configure based on business requirements.                                                                                                                                                                                                                                                                                  |
+| LLM\_API\_KEY\_IDENTIFIER | API Key ID for the Large Language Model node. | 1. Go to the IDaaS instance page, click **Agent ID Gard** in the left navigation pane, and select the Agent.<br>    2. In the canvas, click **Large Language Model > Basic Information** and copy the API Key ID.                                                                                                          |
+| EXTERNAL\_SERVER\_API\_KEY\_IDENTIFIER | API Key ID for the external service node. | 1. Go to the IDaaS instance page, click **Agent ID Gard** in the left navigation pane, and select the Agent.<br>    2. In the canvas, click **External Service > Basic Information** and copy the API Key ID.                                                                                                              |
 | ENTERPRISE\_SERVICE\_SCOPE | Access scope for the enterprise service, format: `audience\|permission` | 1. Go to the IDaaS instance page, click **Agent ID Gard** in the left navigation pane, and select the Agent.<br>    2. In the canvas, click **Enterprise Service > General > Authentication Management** and copy the audience identifier.<br>    3. Click **Permission Configuration** and copy the permission identifier. |
-| EXTERNAL\_SERVER\_URL | Endpoint for the external service (Amap MCP Server SSE Endpoint). | 1. Go to the Alibaba Cloud Model Studio console, click **Application** in the top navigation bar.<br>    2. Select **MCP Marketplace** in the left navigation pane, search for **Amap Maps**, and obtain the endpoint from the bottom of the detail page.                                                                   |
-| ENTERPRISE\_SERVICE\_URL | Endpoint for the enterprise service (Function Compute public access address). | 1. Go to the Function Compute console, click **Function Management > Functions** in the left navigation pane, and select the previously created function.<br>    2. In the function details, click the **Trigger** in the **Function Topology** and copy the public access address.                                         |
+| EXTERNAL\_SERVER\_URL | Endpoint for the external service (Amap MCP Server SSE Endpoint). | Fixed as `https://dashscope.aliyuncs.com/api/v1/mcps/amap-maps/mcp`                     |
+| ENTERPRISE\_SERVICE\_URL | Endpoint for the enterprise service (Function Compute public access address). | 1. Go to the Function Compute console, click **Function Management > Functions** in the left navigation pane, and select the previously created function.<br>    2. In the function details, click the **Trigger** in the **Function Topology** and copy the public access address.                                        |
 
 #### Run the Sample
 
@@ -430,16 +430,16 @@ Creating an Agent via AgentRun requires configuring an execution role with Funct
 #### Create an Agent
 
 1. Log in to the Function Compute console, click **AgentRun** in the left navigation pane to enter the AgentRun console.
-2. Click **One-Click Authorization** in the role authorization check and follow the prompts (required for the first creation).
-3. Click **Create Function**, select **Create from Code**, and fill in the following:
+2. Click **一键授权（One-Click Authorization）** in the role authorization check and follow the prompts (required for the first creation).
+3. Click **创建 Agent（Create Agent）**, select **代码创建（Create from code）**, and fill in the following:
 
-   | Configuration | Value |
-   | --- | --- |
-   | Agent Name | Custom |
-   | Code Source | Upload code package (select `idaas-java-agent-id-demo.zip`) |
-   | Runtime | Java 17 |
-   | Startup Command | See below |
-   | Startup Port | 9002 |
+   | Configuration         | Value |
+   |-----------------------| --- |
+   | Agent 名称（Agent Name）  | Custom |
+   | 选择代码来源（Code Source）   | 上传代码包 (select `idaas-java-agent-id-demo.zip`) |
+   | 运行时（Runtime）          | Java 17 |
+   | 启动命令（Startup Command） | See below |
+   | 启动端口（Startup Port）                | 9002 |
 
    Startup command:
 
@@ -449,9 +449,9 @@ Creating an Agent via AgentRun requires configuring an execution role with Funct
 
    For more information about specifying the IDaaS SDK config file via Java system property, see: [Environment Preparation](https://help.aliyun.com/zh/idaas/eiam/developer-reference/environmental-preparation).
 
-4. Environment variable configuration:
+4. 环境变量（Environment variable）configuration:
 
-| 环境变量名 | 说明 | 如何获取                                                                                                                                                                                                                                                                                                                        | 示例 |
+| Environment Variable | Description | How to Obtain                                                                                                                                                                                                                                                                                                                        | 示例 |
 | --- | --- |-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--|
 | IDAAS\_CLIENT\_SECRET | Agent's Client Secret (required for Client Secret authentication) | 1. Go to the IDaaS instance page, click **Agent ID Gard** in the left navigation pane, and select the Agent.<br>    2. In the canvas, click **Agent > General**, and copy the Client Secret credential from **Authentication Management**.                                                                                  |  |
 | ENV\_PRIVATE\_KEY | Agent's private key (required for public/private key authentication; corresponds to the uploaded public key's private key) | Keep it when creating the public/private key credential.                                                                                                                                                                                                                                                                    |  |
@@ -462,11 +462,11 @@ Creating an Agent via AgentRun requires configuring an execution role with Funct
 | LLM\_API\_KEY\_IDENTIFIER | API Key ID for the Large Language Model node. | 1. Go to the IDaaS instance page, click **Agent ID Gard** in the left navigation pane, and select the Agent.<br>    2. In the canvas, click **Large Language Model > Basic Information** and copy the API Key ID.                                                                                                                    | `llm_api_key` |
 | EXTERNAL\_SERVER\_API\_KEY\_IDENTIFIER | API Key ID for the external service node. | 1. Go to the IDaaS instance page, click **Agent ID Gard** in the left navigation pane, and select the Agent.<br>    2. In the canvas, click **External Service > Basic Information** and copy the API Key ID.                                                                                                       | `mcp_server_api_key` |
 | ENTERPRISE\_SERVICE\_SCOPE | Access scope for the enterprise service, format: `audience\|permission` | 1. Go to the IDaaS instance page, click **Agent ID Gard** in the left navigation pane, and select the Agent.<br>    2. In the canvas, click **Enterprise Service > General > Authentication Management** and copy the audience identifier.<br>    3. Click **Permission Configuration** and copy the permission identifier. | `https://mcpserver.com\|mcp.access` |
-| EXTERNAL\_SERVER\_URL | Endpoint for the external service (Amap MCP Server SSE Endpoint). | 1. Go to the Alibaba Cloud Model Studio console, click **Application** in the top navigation bar.<br>    2. Select **MCP Marketplace** in the left navigation pane, search for **Amap Maps**, and obtain the endpoint from the bottom of the detail page.                                                                   | `https://dashscope.aliyuncs.com/api/v1/mcps/amap-maps/mcp` |
+| EXTERNAL\_SERVER\_URL | Endpoint for the external service (Amap MCP Server SSE Endpoint). | Fixed as `https://dashscope.aliyuncs.com/api/v1/mcps/amap-maps/mcp` | `https://dashscope.aliyuncs.com/api/v1/mcps/amap-maps/mcp` |
 | ENTERPRISE\_SERVICE\_URL | Endpoint for the enterprise service (Function Compute public access address). | 1. Go to the Function Compute console, click **Function Management > Functions** in the left navigation pane, and select the previously created function.<br>    2. In the function details, click the **Trigger** in the **Function Topology** and copy the public access address.                                         | `https://xxx.fcapp.run` |
 
-5. Select the previously created `sample-fc-role` as the execution role, and click **Start Deployment**.
-6. After deployment, click **Details** on the Agent card, navigate to **Version & Canary** in the left navigation of the details page, click **Create Endpoint**, and obtain the public access address.
+5. Select the previously created `sample-fc-role` as the execution role, and click **立即部署（Start Deployment）**.
+6. After deployment, click **详情（Details）** on the Agent card, navigate to **版本与灰度（Version & Canary）** in the left navigation of the details page, click **创建（Create） Endpoint**, and obtain the public access address.
 
 ## Client Deployment
 
