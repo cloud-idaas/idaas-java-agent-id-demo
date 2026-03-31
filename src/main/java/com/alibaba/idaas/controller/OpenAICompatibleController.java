@@ -14,17 +14,31 @@ public class OpenAICompatibleController {
 
     @PostMapping("/openai/v1/chat/completions")
     public SseEmitter chatCompletions(@RequestHeader(value = "Authorization", required = true) String accessToken, @RequestBody ChatCompletionRequest request) throws Exception {
+        // Remove "Bearer " prefix to extract the Access Token
+        accessToken = accessToken.substring(7);
 
-        // validate token
+        // Validate the Access Token for accessing the Agent, including signature verification, audience verification, and scope verification
+        // Signature verification is performed using the IDaaS instance's JWKS endpoint, which must be specified via environment variable
+        // The audience and scope to be validated correspond to the Agent's audience and scope, which must be specified via environment variables
         String jwksEndpoint = System.getenv("JWKS_ENDPOINT");
         if(jwksEndpoint == null){
             throw new ConfigException("JWKS_ENDPOINT should be specified via an environment variable.");
         }
         JwtValidator.validate(jwksEndpoint, accessToken);
 
-        // create agent
-        ReActAgent agent = AgentUtils.createAgent();
+        // Initialize Agent
+        // The Agent identity mode must be specified via environment variable: Machine or Human
+        ReActAgent agent;
+        String accessIdentity = System.getenv("ACCESS_IDENTITY");
+        if ("Machine".equals(accessIdentity)){
+            agent = AgentUtils.createAgentByMachineIdentity();
+        } else if ("Human".equals(accessIdentity)){
+            agent = AgentUtils.createAgentByHumanIdentity(accessToken);
+        } else {
+            throw new ConfigException("ACCESS_IDENTITY should be either Machine or User.");
+        }
 
+        // Start conversation with the Agent
         return ChatUtils.startChat(agent, request);
     }
 }

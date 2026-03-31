@@ -31,7 +31,6 @@ public class JwtValidator {
         }
 
         try {
-            jwtToken = jwtToken.substring(7);
             SignedJWT signedJWT = SignedJWT.parse(jwtToken);
             String kid = signedJWT.getHeader().getKeyID();
             if (kid == null) {

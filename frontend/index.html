@@ -2,425 +2,1418 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <link rel="shortcut icon" href="https://47u4elcn.aliyunidaas.com/favicon.ico" type="image/x-icon">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alibaba Cloud IDaaS Agent ID Demo</title>
+    <title>Alibaba Cloud IDaaS × Agent Demo</title>
+    <link rel="shortcut icon" href="https://47u4elcn.aliyunidaas.com/favicon.ico" type="image/x-icon">
+
+    <!-- Dependencies -->
     <script src="https://cdn.hatter.ink/doc/8877_A6084D572902123F7BA051B7D46D1E0C/marked.min.js"></script>
     <script src="config.js"></script>
+
     <style>
-        /* 页面整体样式 */
-        * {
+        /* ========================================
+           CSS Variables & Reset
+        ======================================== */
+        :root {
+            --orange:        #FF6B35;
+            --orange-dark:   #E55524;
+            --orange-light:  #FF9666;
+            --orange-glow:   rgba(255, 107, 53, 0.25);
+            --navy:          #0D1B2A;
+            --navy-mid:      #132338;
+            --navy-light:    #1A2F45;
+            --glass:         rgba(255, 255, 255, 0.06);
+            --glass-border:  rgba(255, 255, 255, 0.1);
+            --text:          #F0F4F8;
+            --text-muted:    rgba(240, 244, 248, 0.55);
+            --text-dim:      rgba(240, 244, 248, 0.3);
+            --green:         #00D68F;
+            --red:           #FF4D4F;
+            --sidebar-w:     250px;
+            --header-h:      60px;
+            --radius:        14px;
+            --radius-sm:     8px;
+            --shadow-orange: 0 8px 28px rgba(255, 107, 53, 0.35);
+            --shadow-card:   0 20px 60px rgba(0, 0, 0, 0.5);
+            --transition:    all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        *, *::before, *::after {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-            background-color: #f0f2f5;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* 主容器 */
-        #app-container {
-            _max-width: 1000px;
-            width: 100%;
-            margin: 0 auto;
+        html, body {
             height: 100%;
-            display: flex;
-            flex-direction: column;
-            background-color: white;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
             overflow: hidden;
         }
 
-        /* 标题栏 */
-        #header {
-            background-color: orange; /* 蓝色主题 */
-            color: white;
-            padding: 15px 20px;
-            text-align: center;
-            flex-shrink: 0; /* 不压缩高度 */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue',
+                         'Microsoft YaHei', sans-serif;
+            background: var(--navy);
+            color: var(--text);
+            font-size: 14px;
+            line-height: 1.6;
         }
 
-        #header h1 {
-            font-size: 1.5em;
-            margin: 0;
+        /* ========================================
+           Animated Background
+        ======================================== */
+        .bg {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background:
+                radial-gradient(ellipse 80% 60% at 15% 20%, rgba(255, 107, 53, 0.12) 0%, transparent 55%),
+                radial-gradient(ellipse 60% 80% at 85% 75%, rgba(19, 35, 56, 0.8) 0%, transparent 55%),
+                radial-gradient(ellipse 100% 100% at 50% 50%, var(--navy-mid) 0%, var(--navy) 100%);
+            pointer-events: none;
         }
 
-        /* 聊天消息容器 */
-        #chat-messages {
-            flex: 1; /* 占据剩余空间 */
-            overflow-y: auto; /* 内容超出时可滚动 */
-            padding: 20px;
+        .bg::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.015'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.4;
+        }
+
+        /* ========================================
+           LOGIN VIEW
+        ======================================== */
+        #login-view {
+            position: fixed;
+            inset: 0;
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-card {
+            position: relative;
+            z-index: 1;
+            background: rgba(19, 35, 56, 0.75);
+            backdrop-filter: blur(24px) saturate(1.5);
+            -webkit-backdrop-filter: blur(24px) saturate(1.5);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 52px 44px 44px;
+            width: min(460px, 92vw);
+            box-shadow: var(--shadow-card), inset 0 1px 0 rgba(255,255,255,0.07);
+            animation: cardIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+        }
+
+        @keyframes cardIn {
+            from { opacity: 0; transform: translateY(32px) scale(0.94); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .login-logo-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            margin-bottom: 28px;
+        }
+
+        .login-logo {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(140deg, var(--orange), var(--orange-dark));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-orange);
+            font-size: 26px;
+            flex-shrink: 0;
+        }
+
+        .login-brand {
             display: flex;
             flex-direction: column;
-            gap: 15px; /* 消息之间的间距 */
         }
 
-        /* 消息气泡样式 */
-        .message {
-            max-width: 90%;
-            padding: 12px 16px;
-            border-radius: 18px;
-            line-height: 1.5;
-            word-wrap: break-word;
-            position: relative;
-            animation: fadeIn 0.2s ease-out; /* 添加淡入动画 */
+        .login-brand-main {
+            font-size: 19px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            color: var(--text);
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        .login-brand-sub {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 2px;
         }
 
-        /* 用户消息 */
-        .message.user {
-            align-self: flex-end; /* 靠右对齐 */
-            background-color: #4a6cf7; /* 蓝色背景 */
-            color: white;
-            border-bottom-right-radius: 4px; /* 左侧圆角，右侧尖角 */
+        .login-title {
+            text-align: center;
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #fff 30%, var(--orange-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
-        /* Agent 消息 (渲染 Markdown 后的内容) */
-        .message.agent {
-            align-self: flex-start; /* 靠左对齐 */
-            background-color: #e5e5ea; /* 浅灰色背景 */
-            color: black;
-            border-bottom-left-radius: 4px; /* 右侧圆角，左侧尖角 */
-            /* 为 Markdown 内容设置基本样式 */
-        }
-        .message.agent p { margin: 0.5em 0; }
-        .message.agent h1, .message.agent h2, .message.agent h3 { margin: 0.5em 0 0.2em 0; }
-        .message.agent ul, .message.agent ol { margin: 0.5em 0; padding-left: 1.5em; }
-        .message.agent code { background-color: rgba(0,0,0,0.1); padding: 0.1em 0.3em; border-radius: 3px; font-family: monospace; }
-        .message.agent pre { background-color: rgba(0,0,0,0.05); padding: 0.5em; overflow-x: auto; border-radius: 5px; }
-        .message.agent pre code { background: none; padding: 0; }
-
-
-        /* 加载提示 */
-        .message.loading {
-            background-color: #e5e5ea;
-            color: #888;
-            font-style: italic;
+        .login-desc {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 13.5px;
+            line-height: 1.7;
+            margin-bottom: 32px;
         }
 
-        /* 输入区 */
-        #input-container {
+        .btn-idaas {
+            width: 100%;
             display: flex;
-            padding: 15px;
-            background-color: #f0f2f5;
-            border-top: 1px solid #ddd;
-            flex-shrink: 0; /* 不压缩高度 */
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 14px 24px;
+            background: linear-gradient(135deg, var(--orange) 0%, var(--orange-dark) 100%);
+            color: #fff;
+            font-size: 15px;
+            font-weight: 600;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow-orange);
+            letter-spacing: 0.2px;
+        }
+
+        .btn-idaas:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 36px rgba(255, 107, 53, 0.45);
+        }
+
+        .btn-idaas:active {
+            transform: translateY(0);
+        }
+
+        .btn-idaas svg {
+            flex-shrink: 0;
+        }
+
+        .login-sep {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin: 24px 0;
+            color: var(--text-dim);
+            font-size: 12px;
+        }
+        .login-sep::before, .login-sep::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--glass-border);
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .feature-chip {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 12px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .feature-chip-icon {
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        /* ========================================
+           MAIN APP VIEW
+        ======================================== */
+        #app-view {
+            position: relative;
+            z-index: 1;
+            height: 100vh;
+            display: none;
+            flex-direction: column;
+        }
+
+        #app-view.active {
+            display: flex;
+        }
+
+        /* ========================================
+           HEADER
+        ======================================== */
+        .app-header {
+            height: var(--header-h);
+            flex-shrink: 0;
+            background: rgba(13, 27, 42, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            gap: 12px;
+            z-index: 100;
+        }
+
+        .header-logo {
+            width: 34px;
+            height: 34px;
+            background: linear-gradient(140deg, var(--orange), var(--orange-dark));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+            flex-shrink: 0;
+        }
+
+        .header-title {
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: -0.2px;
+        }
+
+        .header-badge {
+            font-size: 10.5px;
+            font-weight: 600;
+            background: rgba(255, 107, 53, 0.18);
+            color: var(--orange-light);
+            border: 1px solid rgba(255, 107, 53, 0.28);
+            border-radius: 5px;
+            padding: 2px 8px;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+        }
+
+        .header-spacer { flex: 1; }
+
+        .header-user {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 10px 5px 6px;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+        }
+
+        .user-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--orange), var(--navy-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .user-name {
+            font-size: 13px;
+            font-weight: 500;
+            max-width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .online-dot {
+            width: 7px;
+            height: 7px;
+            background: var(--green);
+            border-radius: 50%;
+            box-shadow: 0 0 6px rgba(0, 214, 143, 0.7);
+            animation: blink 2.5s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .btn-logout {
+            padding: 6px 14px;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 8px;
+            color: var(--text-muted);
+            font-size: 12.5px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+        }
+
+        .btn-logout:hover {
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* ========================================
+           LAYOUT
+        ======================================== */
+        .app-body {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* ========================================
+           SIDEBAR
+        ======================================== */
+        .sidebar {
+            width: var(--sidebar-w);
+            flex-shrink: 0;
+            background: rgba(10, 20, 32, 0.55);
+            border-right: 1px solid var(--glass-border);
+            display: flex;
+            flex-direction: column;
+            padding: 16px 12px;
+            gap: 2px;
+            overflow-y: auto;
+        }
+
+        .sidebar::-webkit-scrollbar { width: 0; }
+
+        .sidebar-section-label {
+            font-size: 10.5px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-dim);
+            padding: 10px 10px 5px;
+            font-weight: 600;
+        }
+
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 9px 11px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 13.5px;
+            border: 1px solid transparent;
+            transition: var(--transition);
+            user-select: none;
+        }
+
+        .sidebar-item:hover {
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text);
+        }
+
+        .sidebar-item.active {
+            background: rgba(255, 107, 53, 0.14);
+            color: var(--orange-light);
+            border-color: rgba(255, 107, 53, 0.22);
+        }
+
+        .sidebar-item-icon { font-size: 15px; flex-shrink: 0; }
+        .sidebar-item-text { flex: 1; }
+
+        .sidebar-item-badge {
+            font-size: 10px;
+            background: rgba(255, 107, 53, 0.2);
+            color: var(--orange);
+            border-radius: 4px;
+            padding: 1px 6px;
+            font-weight: 600;
+        }
+
+        .sidebar-spacer { flex: 1; }
+
+        .sidebar-info {
+            margin: 8px 2px 0;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-sm);
+        }
+
+        .sidebar-info-label {
+            font-size: 11px;
+            color: var(--orange);
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .sidebar-info-text {
+            font-size: 11px;
+            color: var(--text-dim);
+            line-height: 1.7;
+        }
+
+        /* ========================================
+           CHAT AREA
+        ======================================== */
+        .chat-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            min-width: 0;
+        }
+
+        .chat-top-bar {
+            height: 56px;
+            flex-shrink: 0;
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            padding: 0 22px;
+            gap: 12px;
+        }
+
+        .chat-top-icon {
+            width: 34px;
+            height: 34px;
+            background: rgba(255, 107, 53, 0.15);
+            border: 1px solid rgba(255, 107, 53, 0.25);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .chat-top-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .chat-top-title {
+            font-size: 13.5px;
+            font-weight: 600;
+        }
+
+        .chat-top-sub {
+            font-size: 11.5px;
+            color: var(--text-dim);
+        }
+
+        .chat-top-spacer { flex: 1; }
+
+        .chat-mode-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11.5px;
+            font-weight: 500;
+            background: rgba(0, 214, 143, 0.12);
+            color: var(--green);
+            border: 1px solid rgba(0, 214, 143, 0.2);
+        }
+
+        /* ========================================
+           MESSAGES
+        ======================================== */
+        #chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            scroll-behavior: smooth;
+        }
+
+        #chat-messages::-webkit-scrollbar { width: 5px; }
+        #chat-messages::-webkit-scrollbar-track { background: transparent; }
+        #chat-messages::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 3px;
+        }
+
+        /* Welcome card */
+        .welcome-card {
+            text-align: center;
+            padding: 36px 24px;
+            animation: fadeUp 0.5s ease both;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .welcome-icon {
+            font-size: 44px;
+            display: block;
+            margin-bottom: 14px;
+        }
+
+        .welcome-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #fff, var(--orange-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .welcome-text {
+            font-size: 13.5px;
+            color: var(--text-muted);
+            line-height: 1.7;
+            max-width: 400px;
+            margin: 0 auto 20px;
+        }
+
+        .quick-asks {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .quick-ask {
+            padding: 7px 15px;
+            background: rgba(255, 107, 53, 0.09);
+            border: 1px solid rgba(255, 107, 53, 0.2);
+            border-radius: 20px;
+            font-size: 12.5px;
+            color: var(--orange-light);
+            cursor: pointer;
+            transition: var(--transition);
+            user-select: none;
+        }
+
+        .quick-ask:hover {
+            background: rgba(255, 107, 53, 0.18);
+            border-color: rgba(255, 107, 53, 0.35);
+        }
+
+        /* Message rows */
+        .msg-row {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+            animation: msgAppear 0.25s ease both;
+        }
+
+        @keyframes msgAppear {
+            from { opacity: 0; transform: translateY(6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .msg-row.row-user { flex-direction: row-reverse; }
+
+        .msg-av {
+            width: 30px;
+            height: 30px;
+            border-radius: 9px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .msg-av.av-agent {
+            background: linear-gradient(135deg, #1E3A5F, #2A5A9F);
+            color: #78B4FF;
+        }
+
+        .msg-av.av-user {
+            background: linear-gradient(135deg, var(--orange), var(--orange-dark));
+            color: #fff;
+        }
+
+        .msg-bubble {
+            max-width: 72%;
+            padding: 11px 15px;
+            border-radius: 16px;
+            font-size: 13.5px;
+            line-height: 1.65;
+            word-break: break-word;
+            word-wrap: break-word;
+        }
+
+        .msg-row.row-user .msg-bubble {
+            background: linear-gradient(135deg, var(--orange) 0%, var(--orange-dark) 100%);
+            color: #fff;
+            border-bottom-right-radius: 4px;
+            box-shadow: 0 4px 16px rgba(255, 107, 53, 0.28);
+        }
+
+        .msg-row.row-agent .msg-bubble {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            color: rgba(240, 244, 248, 0.92);
+            border-bottom-left-radius: 4px;
+        }
+
+        /* Markdown inside agent bubble */
+        .msg-row.row-agent .msg-bubble p { margin: 0.35em 0; }
+        .msg-row.row-agent .msg-bubble p:first-child { margin-top: 0; }
+        .msg-row.row-agent .msg-bubble p:last-child { margin-bottom: 0; }
+        .msg-row.row-agent .msg-bubble h1,
+        .msg-row.row-agent .msg-bubble h2,
+        .msg-row.row-agent .msg-bubble h3 {
+            margin: 0.6em 0 0.25em;
+            font-size: 1.05em;
+            color: var(--text);
+        }
+        .msg-row.row-agent .msg-bubble ul,
+        .msg-row.row-agent .msg-bubble ol {
+            padding-left: 1.4em;
+            margin: 0.3em 0;
+        }
+        .msg-row.row-agent .msg-bubble li { margin: 0.15em 0; }
+        .msg-row.row-agent .msg-bubble code {
+            background: rgba(255, 107, 53, 0.18);
+            color: #FF9C70;
+            padding: 0.1em 0.4em;
+            border-radius: 4px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.88em;
+        }
+        .msg-row.row-agent .msg-bubble pre {
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 12px 14px;
+            overflow-x: auto;
+            margin: 8px 0;
+        }
+        .msg-row.row-agent .msg-bubble pre code {
+            background: none;
+            padding: 0;
+            color: #D4E2FF;
+            font-size: 0.9em;
+        }
+        .msg-row.row-agent .msg-bubble blockquote {
+            border-left: 3px solid var(--orange);
+            margin: 6px 0;
+            padding-left: 12px;
+            color: var(--text-muted);
+        }
+        .msg-row.row-agent .msg-bubble table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 8px 0;
+            font-size: 0.9em;
+        }
+        .msg-row.row-agent .msg-bubble th,
+        .msg-row.row-agent .msg-bubble td {
+            padding: 6px 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: left;
+        }
+        .msg-row.row-agent .msg-bubble th {
+            background: rgba(255, 107, 53, 0.12);
+            color: var(--orange-light);
+            font-weight: 600;
+        }
+
+        /* Typing dots */
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+            padding: 4px 2px;
+            align-items: center;
+        }
+
+        .typing-dot {
+            width: 7px;
+            height: 7px;
+            background: var(--orange);
+            border-radius: 50%;
+            animation: dotBounce 1.3s infinite ease-in-out;
+            opacity: 0.6;
+        }
+
+        .typing-dot:nth-child(2) { animation-delay: 0.18s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.36s; }
+
+        @keyframes dotBounce {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+            30%            { transform: translateY(-7px); opacity: 1; }
+        }
+
+        /* System / error */
+        .msg-system {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 14px;
+            background: rgba(255, 77, 79, 0.1);
+            border: 1px solid rgba(255, 77, 79, 0.2);
+            border-radius: var(--radius-sm);
+            color: #FF7B7D;
+            font-size: 13px;
+            align-self: stretch;
+        }
+
+        .msg-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 14px;
+            background: rgba(255, 107, 53, 0.08);
+            border: 1px solid rgba(255, 107, 53, 0.18);
+            border-radius: var(--radius-sm);
+            color: var(--orange-light);
+            font-size: 13px;
+            align-self: stretch;
+        }
+
+        /* ========================================
+           INPUT AREA
+        ======================================== */
+        .input-zone {
+            flex-shrink: 0;
+            padding: 14px 22px 16px;
+            border-top: 1px solid var(--glass-border);
+            background: rgba(10, 20, 32, 0.3);
+        }
+
+        .input-box {
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+            padding: 4px 4px 4px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            transition: var(--transition);
+        }
+
+        .input-box:focus-within {
+            border-color: rgba(255, 107, 53, 0.4);
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+            background: rgba(255, 255, 255, 0.07);
         }
 
         #userInput {
-            flex: 1; /* 占据输入区剩余宽度 */
-            padding: 12px 15px;
-            border: 1px solid #ddd;
-            border-radius: 20px; /* 圆角输入框 */
-            font-size: 1em;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
-        #userInput:focus {
-            border-color: orange; /* 聚焦时边框变蓝 */
-            box-shadow: 0 0 0 2px rgba(74, 108, 247, 0.2); /* 添加发光效果 */
-        }
-
-        #sendButton {
-            margin-left: 10px;
-            padding: 12px 20px;
-            background-color: orange; /* 蓝色按钮 */
-            color: white;
+            flex: 1;
+            background: transparent;
             border: none;
-            border-radius: 20px; /* 圆角按钮 */
+            outline: none;
+            color: var(--text);
+            font-size: 14px;
+            padding: 11px 0;
+            resize: none;
+            max-height: 130px;
+            line-height: 1.6;
+            font-family: inherit;
+        }
+
+        #userInput::placeholder { color: var(--text-dim); }
+
+        .btn-send {
+            width: 38px;
+            height: 38px;
+            flex-shrink: 0;
+            background: linear-gradient(135deg, var(--orange), var(--orange-dark));
+            border: none;
+            border-radius: 12px;
+            color: #fff;
             cursor: pointer;
-            font-size: 1em;
-            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            box-shadow: 0 4px 14px rgba(255, 107, 53, 0.3);
+            margin: 4px;
         }
 
-        #sendButton:hover {
-            background-color: orange; /* 悬停时颜色加深 */
+        .btn-send:hover:not(:disabled) {
+            transform: scale(1.08);
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.45);
         }
 
-        #sendButton:disabled {
-            background-color: #cccccc; /* 禁用时颜色变灰 */
+        .btn-send:disabled {
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: none;
             cursor: not-allowed;
         }
 
-        /* 错误消息样式 */
-        .message.error {
-            background-color: #ffebee;
-            color: #c62828;
-            align-self: stretch; /* 拉伸占满整行 */
-            text-align: center;
+        .input-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 2px 0;
+            font-size: 11px;
+            color: var(--text-dim);
         }
 
+        .powered-by {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .powered-by a {
+            color: var(--orange);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .powered-by a:hover { color: var(--orange-light); }
+
+        /* ========================================
+           Scrollbar Reset
+        ======================================== */
+        .sidebar::-webkit-scrollbar { width: 0; }
+
+        /* ========================================
+           Language Toggle Button
+        ======================================== */
+        .btn-lang {
+            padding: 5px 11px;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 8px;
+            color: var(--text-muted);
+            font-size: 11.5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-lang:hover {
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .login-lang-btn {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+        }
     </style>
 </head>
+
 <body>
 
-<div id="app-container">
-    <div id="header">
-        <h1>Alibaba Cloud IDaaS Agent ID Demo</h1>
-    </div>
+<!-- Animated background -->
+<div class="bg"></div>
 
-    <div id="chat-messages">
-        <!-- 欢迎消息 -->
-        <div class="message agent">
-            你好！我是由 AgentScope 驱动的 AI Agent。请在下方输入框中提出你的问题或指令。
-            <b>不过，你需要使用 Alibaba Cloud IDaaS 登录才可以用哦～</b><span id="loginWithIdaas"></span>
+<!-- ====================================================
+     LOGIN VIEW
+===================================================== -->
+<div id="login-view">
+    <div class="login-card">
+        <button class="btn-lang login-lang-btn" onclick="toggleLang()">EN</button>
+
+        <div class="login-logo-wrap">
+            <div class="login-logo">🔐</div>
+            <div class="login-brand">
+                <div class="login-brand-main">Alibaba Cloud IDaaS</div>
+                <div class="login-brand-sub">Agent Identity Security Demo</div>
+            </div>
+        </div>
+
+        <h1 class="login-title" data-i18n="loginTitle">欢迎使用 Agent Demo</h1>
+        <p class="login-desc" data-i18n-html="loginDesc">
+            通过 <strong>Alibaba Cloud IDaaS</strong> 统一身份认证，<br>
+            体验 <strong>Agent 身份安全</strong> 保护
+        </p>
+
+        <button type="button" class="btn-idaas" id="loginBtn" onclick="doLogin()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                <polyline points="10 17 15 12 10 7"/>
+                <line x1="15" y1="12" x2="3" y2="12"/>
+            </svg>
+            <span data-i18n="loginBtn">使用 IDaaS 账号登录</span>
+        </button>
+
+        <div class="login-sep"><span data-i18n="loginSep">核心能力</span></div>
+
+        <div class="feature-grid">
+            <div class="feature-chip">
+                <span class="feature-chip-icon">🔒</span>
+                <span data-i18n="feat1">IDaaS 统一身份认证</span>
+            </div>
+            <div class="feature-chip">
+                <span class="feature-chip-icon">🛡️</span>
+                <span data-i18n="feat2">Agent 身份安全</span>
+            </div>
+            <div class="feature-chip">
+                <span class="feature-chip-icon">🔑</span>
+                <span data-i18n="feat3">凭据托管</span>
+            </div>
+            <div class="feature-chip">
+                <span class="feature-chip-icon">🤖</span>
+                <span data-i18n="feat4">机器间权限管理</span>
+            </div>
         </div>
     </div>
+</div>
 
-    <div id="input-container">
-        <input type="text" id="userInput" placeholder="输入消息..." autocomplete="off"/>
-        <button id="sendButton" onclick="sendMessage()">发送</button>
+<!-- ====================================================
+     MAIN APP VIEW
+===================================================== -->
+<div id="app-view">
+    <!-- Header -->
+    <header class="app-header">
+        <div class="header-logo">🤖</div>
+        <span class="header-title">IDaaS Agent</span>
+        <div class="header-spacer"></div>
+        <button class="btn-lang" onclick="toggleLang()">EN</button>
+        <div class="header-user">
+            <div class="user-avatar" id="userAvatar">?</div>
+            <span class="user-name" id="userName">用户</span>
+            <div class="online-dot"></div>
+        </div>
+        <button class="btn-logout" onclick="doLogout()" data-i18n="logout">退出登录</button>
+    </header>
+
+    <!-- Body -->
+    <div class="app-body">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-section-label" data-i18n="sidebarConv">对话</div>
+
+            <div class="sidebar-item active" id="sb-chat">
+                <span class="sidebar-item-icon">💬</span>
+                <span class="sidebar-item-text" data-i18n="sidebarChat">Agent 对话</span>
+            </div>
+
+            <div class="sidebar-section-label" data-i18n="sidebarOps">操作</div>
+
+            <div class="sidebar-item" onclick="clearChat()">
+                <span class="sidebar-item-icon">🗑️</span>
+                <span class="sidebar-item-text" data-i18n="sidebarClear">清空对话</span>
+            </div>
+        </aside>
+
+        <!-- Chat main -->
+        <div class="chat-main">
+            <div class="chat-top-bar">
+                <div class="chat-top-icon" id="chatTopIcon">🤖</div>
+                <div class="chat-top-info">
+                    <div class="chat-top-title" id="chatTopTitle">AI Assistant</div>
+                    <div class="chat-top-sub" id="chatTopSub" data-i18n="chatSub">由 IDaaS Agent 身份安全保护</div>
+                </div>
+                <div class="chat-top-spacer"></div>
+                <div class="chat-mode-indicator mode-chat" id="modeIndicator" data-i18n="chatMode">● 对话模式</div>
+            </div>
+
+            <!-- Messages -->
+            <div id="chat-messages">
+                <div class="welcome-card">
+                    <span class="welcome-icon">🚀</span>
+                    <h2 class="welcome-title" data-i18n="welcomeTitle">欢迎，身份认证已完成！</h2>
+                    <p class="welcome-text" data-i18n="welcomeText">您已通过 Alibaba Cloud IDaaS 登录，现在可以与 AI Agent 进行对话。</p>
+                </div>
+            </div>
+
+            <!-- Input -->
+            <div class="input-zone">
+                <div class="input-box">
+                    <textarea
+                        id="userInput"
+                        placeholder="输入消息与 AI Agent 对话..."
+                        data-i18n-placeholder="inputPlaceholder"
+                        rows="1"
+                        oninput="autoResize(this)"
+                        onkeydown="onInputKeyDown(event)"
+                    ></textarea>
+                    <button class="btn-send" id="sendButton" onclick="sendMessage()">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="input-footer">
+                    <span data-i18n="inputHint">Enter 发送 · Shift+Enter 换行</span>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
 <script>
-    const AGENTSCOPE_API_URL = window.APP_CONFIG.AGENTSCOPE_API_URL;
+/* ============================================================
+   CONFIG
+============================================================ */
+const CFG = window.APP_CONFIG;
 
-    // 获取 DOM 元素
-    const chatMessagesDiv = document.getElementById('chat-messages');
-    const userInputElement = document.getElementById('userInput');
-    const sendButtonElement = document.getElementById('sendButton');
+/* ============================================================
+   I18N
+============================================================ */
+const I18N = {
+  zh: {
+    loginTitle:       '欢迎使用 Agent Demo',
+    loginDesc:        '通过 <strong>Alibaba Cloud IDaaS</strong> 统一身份认证，<br>体验 <strong>Agent 身份安全</strong> 保护',
+    loginBtn:         '使用 IDaaS 账号登录',
+    loginSep:         '核心能力',
+    feat1:            'IDaaS 统一身份认证',
+    feat2:            'Agent 身份安全',
+    feat3:            '凭据托管',
+    feat4:            '机器间权限管理',
+    logout:           '退出登录',
+    sidebarConv:      '对话',
+    sidebarChat:      'Agent 对话',
+    sidebarOps:       '操作',
+    sidebarClear:     '清空对话',
+    chatSub:          '由 IDaaS Agent 身份安全保护',
+    chatMode:         '● 对话模式',
+    welcomeTitle:     '欢迎，身份认证已完成！',
+    welcomeText:      '您已通过 Alibaba Cloud IDaaS 登录，现在可以与 AI Agent 进行对话。',
+    inputPlaceholder: '输入消息与 AI Agent 对话...',
+    inputHint:        'Enter 发送 · Shift+Enter 换行',
+    noToken:          '⚠️ 未检测到 IDaaS 登录凭证，请重新登录',
+    tokenExpired:     '⚠️ 登录已过期，请 ',
+    relogin:          '重新登录',
+    requestFailed:    '❌ 请求失败：',
+    noResponse:       '（未收到有效响应）',
+    userDefault:      '用户',
+    userLoggedIn:     '已登录用户',
+    langBtn:          'EN',
+  },
+  en: {
+    loginTitle:       'Welcome to Agent Demo',
+    loginDesc:        'Unified identity via <strong>Alibaba Cloud IDaaS</strong>,<br>experience <strong>Agent Identity Security</strong>',
+    loginBtn:         'Login with IDaaS Account',
+    loginSep:         'Key Features',
+    feat1:            'Unified Identity Auth',
+    feat2:            'Agent Identity Security',
+    feat3:            'Credential Management',
+    feat4:            'M2M Permission Control',
+    logout:           'Logout',
+    sidebarConv:      'Conversation',
+    sidebarChat:      'Agent Chat',
+    sidebarOps:       'Actions',
+    sidebarClear:     'Clear Chat',
+    chatSub:          'Protected by IDaaS Agent Security',
+    chatMode:         '● Chat Mode',
+    welcomeTitle:     'Welcome, authentication complete!',
+    welcomeText:      'You have logged in via Alibaba Cloud IDaaS. Start chatting with the AI Agent.',
+    inputPlaceholder: 'Type a message to chat with AI Agent...',
+    inputHint:        'Enter to send · Shift+Enter for newline',
+    noToken:          '⚠️ No IDaaS credentials detected, please log in again',
+    tokenExpired:     '⚠️ Session expired, please ',
+    relogin:          're-login',
+    requestFailed:    '❌ Request failed: ',
+    noResponse:       '(No valid response received)',
+    userDefault:      'User',
+    userLoggedIn:     'Logged-in User',
+    langBtn:          '中文',
+  }
+};
 
-    function initClient() {
-        window.accessToken = getAccessTokenFromHash();
-        if (!window.accessToken) {
-            document.getElementById('loginWithIdaas').innerHTML = '&nbsp; <a href="#" onclick="doLogin()">前往 Alibaba Cloud IDaaS 登录[...]</a>';
-        } else {
-            const payload = window.accessToken.split('.')[1];
-            window.userId = JSON.parse(atob(payload)).sub;
-            window.sessionId = JSON.parse(atob(payload)).jti;
-        }
+let currentLang = localStorage.getItem('lang') || 'zh';
+
+function t(key) {
+  return (I18N[currentLang] && I18N[currentLang][key]) || I18N.zh[key] || key;
+}
+
+function applyLang() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = t(el.dataset.i18n);
+  });
+  document.querySelectorAll('[data-i18n-html]').forEach(el => {
+    el.innerHTML = t(el.dataset.i18nHtml);
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    el.placeholder = t(el.dataset.i18nPlaceholder);
+  });
+  document.querySelectorAll('.btn-lang').forEach(el => {
+    el.textContent = t('langBtn');
+  });
+}
+
+function toggleLang() {
+  currentLang = currentLang === 'zh' ? 'en' : 'zh';
+  localStorage.setItem('lang', currentLang);
+  applyLang();
+}
+
+/* ============================================================
+   IDaaS AUTH
+============================================================ */
+function getMyUrl() {
+    const url = location.href;
+    const q = url.indexOf('?');
+    const h = url.indexOf('#');
+    if (q < 0 && h < 0) return url;
+    if (q > 0 && h > 0) return url.substring(0, Math.min(q, h));
+    return url.substring(0, q < 0 ? h : q);
+}
+
+function parseTokenFromHash() {
+    if (!location.hash) return null;
+    const hash = location.hash;
+    // Clear hash immediately to avoid token leakage in history
+    history.replaceState(null, '', location.pathname + location.search);
+    if (!hash.startsWith('#')) return null;
+    const params = {};
+    for (const [k, v] of new URLSearchParams(hash.slice(1))) {
+        params[k] = v;
     }
-    initClient();
+    window.tokenResponse = params;
+    return params['access_token'] || null;
+}
 
-    function getAccessTokenFromHash() {
-        if (!location.hash) {
-            return null;
-        }
-        console.log(location.hash);
-        const hash = location.hash;
-        location.hash = '';
-        if (hash.startsWith('#')) {
-            const searchParams = new URLSearchParams(hash.slice(1));
-            const params = {};
-            for (const [key, value] of searchParams) {
-                params[key] = value;
+function doLogin() {
+    const clientId   = encodeURIComponent(CFG.CLIENT_ID);
+    const callback   = encodeURIComponent(getMyUrl());
+    const scope      = encodeURIComponent(CFG.SCOPE);
+    const endpoint   = CFG.IDAAS_AUTHORIZE_ENDPOINT;
+    location.href = `${endpoint}?client_id=${clientId}&response_type=token&scope=${scope}&redirect_uri=${callback}`;
+}
+
+function doLogout() {
+    window.accessToken = null;
+    // 跳转 IDaaS logout 端点清除服务端会话，IDaaS 退出后重定向回本页登录入口
+    // 这样下次点击登录时 IDaaS 不会复用旧会话，而是展示完整登录界面
+    const clientId     = encodeURIComponent(CFG.CLIENT_ID);
+    const redirectBack = encodeURIComponent(getMyUrl());
+    location.href = `${CFG.IDAAS_LOGOUT_ENDPOINT}?client_id=${clientId}&post_logout_redirect_uri=${redirectBack}`;
+}
+
+function initApp() {
+    window.accessToken = parseTokenFromHash();
+    if (!window.accessToken) {
+        document.getElementById('login-view').style.display = 'flex';
+        return;
+    }
+
+    // Parse JWT payload
+    try {
+        const raw     = window.accessToken.split('.')[1];
+        const payload = JSON.parse(atob(raw.replace(/-/g, '+').replace(/_/g, '/')));
+        window.userId    = payload.sub;
+        window.sessionId = payload.jti || Date.now().toString();
+        const displayName = payload.name || payload.preferred_username || payload.sub || t('userDefault');
+        document.getElementById('userName').textContent   = displayName;
+        document.getElementById('userAvatar').textContent = displayName.charAt(0).toUpperCase();
+    } catch (e) {
+        window.userId    = 'user';
+        window.sessionId = Date.now().toString();
+        document.getElementById('userName').textContent   = t('userLoggedIn');
+        document.getElementById('userAvatar').textContent = 'U';
+    }
+
+    // Show app view
+    document.getElementById('login-view').style.display = 'none';
+    document.getElementById('app-view').classList.add('active');
+}
+
+/* ============================================================
+   CHAT UI HELPERS
+============================================================ */
+const $msgs       = document.getElementById('chat-messages');
+const $input      = document.getElementById('userInput');
+const $sendBtn    = document.getElementById('sendButton');
+
+function scrollBottom() {
+    $msgs.scrollTop = $msgs.scrollHeight;
+}
+
+function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 130) + 'px';
+}
+
+function setInput(text) {
+    $input.value = text;
+    $input.focus();
+    autoResize($input);
+}
+
+function clearChat() {
+    $msgs.innerHTML = '';
+}
+
+function addInfoMsg(text) {
+    const el = document.createElement('div');
+    el.className = 'msg-info';
+    el.textContent = text;
+    $msgs.appendChild(el);
+    scrollBottom();
+}
+
+function addErrorMsg(text) {
+    const el = document.createElement('div');
+    el.className = 'msg-system';
+    el.textContent = text;
+    $msgs.appendChild(el);
+    scrollBottom();
+}
+
+function appendUserBubble(text) {
+    const avatarChar = document.getElementById('userAvatar').textContent || 'U';
+    const row = document.createElement('div');
+    row.className = 'msg-row row-user';
+    row.innerHTML = `
+        <div class="msg-av av-user">${avatarChar}</div>
+        <div class="msg-bubble">${escHtml(text)}</div>
+    `;
+    $msgs.appendChild(row);
+    scrollBottom();
+}
+
+function appendAgentBubble() {
+    const row = document.createElement('div');
+    row.className = 'msg-row row-agent';
+    const bubble = document.createElement('div');
+    bubble.className = 'msg-bubble';
+    bubble.innerHTML = `<div class="typing-dots">
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+    </div>`;
+    row.innerHTML = `<div class="msg-av av-agent">🤖</div>`;
+    row.appendChild(bubble);
+    $msgs.appendChild(row);
+    scrollBottom();
+    return bubble;
+}
+
+function escHtml(str) {
+    return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
+/* ============================================================
+   SEND MESSAGE
+============================================================ */
+function onInputKeyDown(e) {
+    if (e.key === 'Enter' && !e.shiftKey && !$sendBtn.disabled) {
+        e.preventDefault();
+        sendMessage();
+    }
+}
+
+async function sendMessage() {
+    const prompt = $input.value.trim();
+    if (!prompt) return;
+
+    $input.value = '';
+    $input.style.height = 'auto';
+    $sendBtn.disabled = true;
+
+    // ---- normal chat mode (AgentScope backend via SSE) ----
+    if (!window.accessToken) {
+        addErrorMsg(t('noToken'));
+        $sendBtn.disabled = false;
+        return;
+    }
+
+    appendUserBubble(prompt);
+    const bubble = appendAgentBubble();
+
+    let fullText      = '';
+    let firstContent  = true;
+
+    try {
+        const res = await fetch(CFG.AGENTSCOPE_API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type':  'application/json',
+                'Authorization': 'Bearer ' + window.accessToken,
+            },
+            body: JSON.stringify({
+                messages: [{ role: 'user', content: prompt }],
+                stream:   true,
+            }),
+        });
+
+        if (!res.ok) {
+            if (res.status === 401) {
+                bubble.innerHTML = `<div class="msg-system">${t('tokenExpired')}<a href="#" onclick="doLogin();return false;" style="color:var(--orange)">${t('relogin')}</a></div>`;
+                return;
             }
-            window.tokenResponse = params;
-            return params['access_token'];
-        }
-        return {};
-    }
-
-    function getMyUrl() {
-        const url = location.href;
-        const indexOfQ = url.indexOf('?');
-        const indexOfH = url.indexOf('#');
-        if (indexOfQ < 0 && indexOfH < 0) {
-            return url;
-        }
-        if (indexOfQ > 0 && indexOfH > 0) {
-        return url.substring(0, Math.min(indexOfQ, indexOfH));
-        }
-        return url.substring(0, (indexOfQ < 0) ? indexOfH: indexOfQ);
-    }
-
-    function doLogin() {
-        const clientId = encodeURIComponent(window.APP_CONFIG.CLIENT_ID);
-        const callbackUri = encodeURIComponent(getMyUrl());
-        const scope = encodeURIComponent(window.APP_CONFIG.SCOPE);
-        location.href = `${window.APP_CONFIG.IDAAS_AUTHORIZE_ENDPOINT}?client_id=${clientId}&response_type=token&scope=${scope}&redirect_uri=${callbackUri}`;
-    }
-
-    // 辅助函数：滚动到底部
-    function scrollToBottom() {
-        chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
-    }
-
-    // 辅助函数：加消息到聊天窗口
-    function addMessage(content, sender) {
-        const messageDiv = document.createElement('div');
-        messageDiv.classList.add('message');
-        if (sender === 'user') {
-            messageDiv.classList.add('user');
-            messageDiv.textContent = content; // 用户消息通常是纯文本
-        } else if (sender === 'agent') {
-            messageDiv.classList.add('agent');
-            // Agent 消息需要渲染 Markdown
-            messageDiv.innerHTML = marked.parse(content || ""); // 初始化时可能为空
-        } else if (sender === 'error') {
-            messageDiv.classList.add('error');
-            messageDiv.textContent = content;
-        } else if (sender === 'loading') {
-            messageDiv.classList.add('loading');
-            messageDiv.textContent = content;
-        }
-        chatMessagesDiv.appendChild(messageDiv);
-        scrollToBottom();
-        return messageDiv; // 返回元素引用以便后续更新内容
-    }
-
-    // 发送消息的主函数
-    async function sendMessage() {
-        const prompt = userInputElement.value.trim();
-        if (!prompt) {
-            return;
+            throw new Error(`HTTP ${res.status} ${res.statusText}`);
         }
 
-        // 1. 显示用户输入的消息
-        addMessage(prompt, 'user');
-        userInputElement.value = ''; // 清空输入框
-        sendButtonElement.disabled = true; // 禁用发送按钮
+        const reader  = res.body.getReader();
+        const decoder = new TextDecoder('utf-8');
+        let   buffer  = '';
 
-        // 2. 创建一个空白的 Agent 消息气泡用于显示流式内容
-        const agentMessageElement = addMessage('', 'agent'); // 初始内容为空
-        let fullAgentResponse = ""; // 用于累积完整的响应内容
-        let currentLine = ""; // 当前正在处理的内容行
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
 
-        // 防抖函数，避免过于频繁地更新 DOM 和渲染 Markdown
-        let renderTimeout;
-        function debouncedRender() {
-            clearTimeout(renderTimeout);
-            renderTimeout = setTimeout(() => {
-                // 每次更新时，将累积的完整文本解析为 HTML 并插入到消息气泡中
-                agentMessageElement.innerHTML = marked.parse(fullAgentResponse);
-                scrollToBottom();
-            }, 16); // 约 60fps 的延迟
-        }
-        
-        // 立即渲染函数（用于首次内容）
-        function immediateRender() {
-            agentMessageElement.innerHTML = marked.parse(fullAgentResponse);
-            scrollToBottom();
-        }
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n');
+            buffer = lines.pop() ?? '';
 
-        try {
-            // 3. 构建并发送请求到 AgentScope 后端
-            const requestBody = {
-                messages: [
-                    {
-                        role: 'user',
-                        content: prompt
-                    }
-                ],
-                model: 'qwen-plus',
-                stream: true
-            };
+            for (const line of lines) {
+                const t = line.trim();
+                if (!t || !t.startsWith('data:')) continue;
 
-            const response = await fetch(AGENTSCOPE_API_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    // TODO use SSO
-                    'Authorization': 'Bearer ' + window.accessToken,
-                },
-                body: JSON.stringify(requestBody),
-            });
+                const raw = t.slice(5).trim();
+                if (raw === '[DONE]') continue;
 
-            if (!response.ok) {
-                if (response.status === 401) {
-                    addMessage('⚠️ 哎呀，你没有登录或登录已经过期，请重新通过 Alibaba Cloud IDaaS 登录哦～', 'error');
-                    return;
-                }
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+                try {
+                    const parsed  = JSON.parse(raw);
+                    const choice  = parsed.choices?.[0];
+                    const content = choice?.delta?.content || choice?.message?.content || '';
 
-            // 4. 处理流式响应（SSE 格式）
-            const reader = response.body.getReader();
-            const decoder = new TextDecoder('utf-8');
-            let buffer = ''; // 用于缓存不完整的行
-            let messageCount = 0; // 计数器
-            let receivedAnyContent = false; // 标记是否收到有效内容
-            
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) break;
-            
-                const chunk = decoder.decode(value, { stream: true });
-            
-                buffer += chunk; // 添加到缓冲区
-            
-                // 按行分割 SSE 数据
-                const lines = buffer.split('\n');
-                buffer = lines.pop() || ''; // 保留最后一个可能不完整的行
-            
-                for (const line of lines) {
-                    const trimmedLine = line.trim();
-            
-                    // 跳过空行（SSE 标准格式中用空行分隔事件）
-                    if (trimmedLine === '') {
-                        continue;
-                    }
-            
-                    // 检查是否是 SSE data 行
-                    if (trimmedLine.startsWith('data:')) {
-                        // 移除 "data:" 前缀（包括可能的空格）
-                        let data = trimmedLine.slice(5).trim();
-            
-                        if (data === '[DONE]') {
-                            continue; // 结束标志
+                    if (content) {
+                        if (firstContent) {
+                            bubble.innerHTML = '';
+                            firstContent = false;
                         }
-            
-                        try {
-                            const parsed = JSON.parse(data);
-                            messageCount++;
-                                                                    
-                            // 从响应中提取文本内容并追加到完整响应中
-                            // 兼容多种可能的响应格式
-                            const choice = parsed.choices?.[0];
-                            const content = choice?.delta?.content || choice?.message?.content || '';
-                                        
-                            if (content) {
-                                fullAgentResponse += content; // 累积内容
-                                receivedAnyContent = true;
-                                                                
-                                // 如果是第一条内容，立即渲染，否则使用防抖
-                                if (messageCount === 1) {
-                                    immediateRender();
-                                } else {
-                                    debouncedRender(); // 触发防抖渲染
-                                }
-                            }
-                        } catch (e) {
-                            console.error("[DEBUG] 解析 JSON 失败:", e.message, "原始数据:", data);
-                        }
-                    } else if (!trimmedLine.startsWith(':')) {
-                        // 非注释行
-                        console.warn('[DEBUG] 发现非 data: 行:', trimmedLine);
+                        fullText += content;
+                        bubble.innerHTML = marked.parse(fullText);
+                        scrollBottom();
                     }
+                } catch (_) {
+                    // Ignore JSON parse errors for individual chunks
                 }
             }
-
-            console.log('[DEBUG] SSE 流读取完成，共收到', messageCount, '条消息');
-            if (!receivedAnyContent) {
-                console.warn('[DEBUG] 警告：未收到任何有效内容！');
-            }
-
-        } catch (error) {
-            console.error("发送消息失败:", error);
-            addMessage(`请求失败：${error.message}`, 'error');
-        } finally {
-            // 5. 恢复发送按钮
-            sendButtonElement.disabled = false;
         }
+
+        if (!fullText) {
+            bubble.innerHTML = `<em style="color:var(--text-dim)">${t('noResponse')}</em>`;
+        }
+
+    } catch (err) {
+        console.error('[chat] Error:', err);
+        bubble.innerHTML = `<div class="msg-system">${t('requestFailed')}${escHtml(err.message)}</div>`;
+    } finally {
+        $sendBtn.disabled = false;
+        scrollBottom();
     }
+}
 
-    // 监听回车键发送消息
-    userInputElement.addEventListener('keypress', (event) => {
-        if (event.key === 'Enter' && !sendButtonElement.disabled) {
-            sendMessage();
-        }
-    });
+/* ============================================================
+   BOOT
+============================================================ */
+initApp();
+applyLang();
 </script>
+
 </body>
 </html>

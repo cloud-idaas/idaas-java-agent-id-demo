@@ -34,7 +34,7 @@
         <dependency>
             <groupId>com.cloud-idaas</groupId>
             <artifactId>idaas-java-core-sdk</artifactId>
-            <version>0.0.3-beta</version>
+            <version>0.0.6-beta</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
@@ -45,7 +45,7 @@
         <dependency>
             <groupId>com.cloud-idaas</groupId>
             <artifactId>idaas-java-core-alibabacloud-authentication-plugin</artifactId>
-            <version>0.0.1-beta</version>
+            <version>0.0.2-beta</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.cloud-idaas</groupId>
@@ -56,7 +56,7 @@
         <dependency>
             <groupId>com.cloud-idaas</groupId>
             <artifactId>idaas-java-pam-client</artifactId>
-            <version>0.0.1-beta</version>
+            <version>0.0.2-beta</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.cloud-idaas</groupId>
